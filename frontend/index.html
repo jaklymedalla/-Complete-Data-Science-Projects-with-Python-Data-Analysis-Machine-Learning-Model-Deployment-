@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Demand Studio</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: rgba(18, 26, 46, .88);
+      --panel-soft: #111a2e;
+      --stroke: rgba(151, 169, 207, .14);
+      --text: #eef3ff;
+      --muted: #91a0bd;
+      --accent: #73e0c1;
+      --accent-strong: #3cc5a0;
+      --blue: #8caaff;
+      --red: #ff8296;
+      --shadow: 0 18px 54px rgba(0, 0, 0, .24);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(ellipse at 12% -8%, rgba(76, 110, 211, .2), transparent 35rem),
+        radial-gradient(ellipse at 92% 10%, rgba(65, 187, 157, .1), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .shell { max-width: 1440px; margin: 0 auto; padding: 28px clamp(16px, 4vw, 56px) 56px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 30px; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark {
+      width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px;
+      color: #071712; background: linear-gradient(140deg, #a4f5dc, #41cba7);
+      box-shadow: 0 9px 26px rgba(65, 203, 167, .2);
+    }
+    .brand-mark svg { width: 24px; height: 24px; }
+    .eyebrow { margin: 0 0 3px; color: var(--muted); font-size: 11px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin: 0; font-size: clamp(20px, 3vw, 25px); letter-spacing: -.035em; }
+    h2 { margin-bottom: 4px; font-size: 18px; letter-spacing: -.025em; }
+    h3 { margin-bottom: 8px; font-size: 14px; }
+    .model-chip {
+      display: flex; align-items: center; gap: 20px; padding: 11px 16px; border: 1px solid var(--stroke);
+      border-radius: 16px; background: rgba(17, 26, 46, .7); box-shadow: var(--shadow);
+    }
+    .model-name { display: flex; align-items: center; gap: 9px; font-weight: 700; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px rgba(115, 224, 193, .7); }
+    .chip-stat { padding-left: 18px; border-left: 1px solid var(--stroke); }
+    .chip-stat strong { display: block; font-size: 14px; }
+    .chip-stat span { display: block; color: var(--muted); font-size: 11px; }
+    .grid { display: grid; grid-template-columns: minmax(290px, .84fr) minmax(0, 1.65fr); gap: 18px; align-items: start; }
+    .panel {
+      border: 1px solid var(--stroke); border-radius: 21px; padding: 22px;
+      background: linear-gradient(150deg, rgba(20, 29, 51, .95), rgba(15, 23, 41, .92));
+      box-shadow: var(--shadow); transition: border-color .2s ease, transform .2s ease;
+    }
+    .panel:hover { border-color: rgba(151, 169, 207, .24); }
+    .section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    .section-heading p { margin: 0; color: var(--muted); font-size: 12px; }
+    .mode-badge, .default-tag, .soft-pill {
+      display: inline-flex; align-items: center; border-radius: 999px; font-size: 10px; font-weight: 750;
+      letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+    }
+    .mode-badge { padding: 6px 10px; color: #a4f5dc; background: rgba(65, 203, 167, .12); border: 1px solid rgba(115, 224, 193, .22); }
+    .mode-badge.backtest { color: #b6c8ff; background: rgba(140, 170, 255, .12); border-color: rgba(140, 170, 255, .23); }
+    .field { margin-bottom: 15px; }
+    .label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+    label { color: #d3ddf2; font-size: 12px; font-weight: 650; }
+    .default-tag { padding: 3px 7px; color: #8be4c6; background: rgba(65, 203, 167, .1); font-size: 9px; }
+    select, input[type="date"] {
+      width: 100%; height: 43px; padding: 0 12px; color: var(--text); border: 1px solid var(--stroke);
+      border-radius: 11px; outline: none; background: #0e1629; transition: border-color .18s ease, box-shadow .18s ease;
+    }
+    select:focus, input[type="date"]:focus { border-color: rgba(115, 224, 193, .7); box-shadow: 0 0 0 3px rgba(115, 224, 193, .09); }
+    select option { background: #0e1629; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .toggle {
+      display: flex; align-items: center; justify-content: space-between; height: 43px; padding: 0 12px;
+      color: #cbd6ec; border: 1px solid var(--stroke); border-radius: 11px; background: #0e1629;
+    }
+    .toggle input { position: absolute; opacity: 0; pointer-events: none; }
+    .switch { position: relative; width: 35px; height: 20px; border-radius: 20px; background: #303b54; transition: background .2s ease; }
+    .switch::after {
+      position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #d6deed;
+      content: ""; transition: transform .2s ease, background .2s ease;
+    }
+    .toggle input:checked + .switch { background: #258f78; }
+    .toggle input:checked + .switch::after { transform: translateX(15px); background: white; }
+    .price-note { display: flex; align-items: flex-start; gap: 9px; margin: -1px 0 18px; padding: 10px 11px; border-radius: 10px; color: var(--muted); background: rgba(140, 170, 255, .06); font-size: 11px; }
+    .info-icon { flex: 0 0 16px; width: 16px; height: 16px; display: grid; place-items: center; border: 1px solid #7283a7; border-radius: 50%; color: #b7c8ec; font-size: 10px; font-weight: 800; }
+    .predict-btn, .secondary-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 45px; padding: 0 17px;
+      color: #071711; border: 0; border-radius: 12px; background: linear-gradient(115deg, #a3f4dc, #4fd0ad);
+      font-weight: 800; box-shadow: 0 9px 23px rgba(65, 203, 167, .14); transition: transform .18s ease, filter .18s ease;
+    }
+    .predict-btn { width: 100%; }
+    .predict-btn:hover, .secondary-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+    .predict-btn:disabled, .secondary-btn:disabled { opacity: .6; cursor: wait; transform: none; }
+    .spinner { display: none; width: 15px; height: 15px; border: 2px solid rgba(4, 29, 21, .3); border-top-color: #071711; border-radius: 50%; animation: spin .7s linear infinite; }
+    .loading .spinner { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .right-column { display: grid; gap: 18px; }
+    .result-panel { min-height: 186px; }
+    .result-content { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 18px; }
+    .result-label { color: var(--muted); font-size: 12px; }
+    .result-number { margin: 2px 0 4px; font-size: clamp(36px, 6vw, 54px); font-weight: 760; letter-spacing: -.06em; line-height: 1.1; }
+    .range-text { margin: 0; color: #b1bfd8; font-size: 12px; }
+    .result-side { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
+    .stat-card { min-width: 118px; padding: 12px 14px; border: 1px solid var(--stroke); border-radius: 13px; background: rgba(8, 15, 29, .45); }
+    .stat-card strong { display: block; font-size: 17px; }
+    .stat-card span { display: block; color: var(--muted); font-size: 10px; }
+    .accuracy { color: var(--accent); }
+    .empty-result { color: var(--muted); font-size: 13px; }
+    .chart-panel { min-height: 370px; }
+    .chart-wrap { position: relative; min-height: 280px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; color: var(--muted); font-size: 11px; }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .legend i { width: 15px; height: 3px; border-radius: 4px; background: var(--accent); }
+    .legend .pred i { background: var(--blue); }
+    .legend .epidemic i { height: 9px; background: rgba(255, 130, 150, .35); }
+    .below-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .8fr); gap: 18px; margin-top: 18px; }
+    .range-form { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 12px; }
+    .range-form .field { margin: 0; }
+    .secondary-btn { min-height: 43px; padding: 0 16px; color: #d9e3f7; border: 1px solid var(--stroke); background: #1b2944; box-shadow: none; }
+    .mae-callout { display: flex; align-items: center; justify-content: space-between; margin: 17px 0 12px; padding: 12px 14px; border: 1px solid var(--stroke); border-radius: 12px; background: rgba(8, 15, 29, .4); }
+    .mae-callout span { color: var(--muted); font-size: 12px; }
+    .mae-callout strong { color: var(--accent); font-size: 19px; }
+    .period-chart-wrap { position: relative; height: 245px; }
+    .driver-list { display: grid; gap: 12px; margin: 15px 0 21px; }
+    .driver-row { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 11px; }
+    .driver-name { color: #dce5f7; }
+    .driver-value { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .driver-track { grid-column: 1 / -1; height: 4px; overflow: hidden; border-radius: 4px; background: rgba(151, 169, 207, .12); }
+    .driver-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #3fbf9c, #8caaff); }
+    .info-list { display: grid; gap: 9px; padding: 0; margin: 0; list-style: none; }
+    .info-list li { position: relative; padding-left: 15px; color: #aab8d2; font-size: 12px; }
+    .info-list li::before { position: absolute; top: .56em; left: 0; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); content: ""; }
+    .known-title { margin-top: 19px; }
+    .toast {
+      position: fixed; right: 22px; bottom: 22px; z-index: 20; max-width: min(390px, calc(100vw - 32px));
+      padding: 13px 16px; color: #ffe4e8; border: 1px solid rgba(255, 130, 150, .3); border-radius: 13px;
+      background: #321c2a; box-shadow: var(--shadow); opacity: 0; transform: translateY(10px); pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { color: #d5fff1; border-color: rgba(115, 224, 193, .3); background: #142c2b; }
+    .muted-note { color: var(--muted); font-size: 11px; }
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: 1fr; }
+      .below-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .shell { padding-top: 18px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .model-chip { width: 100%; justify-content: space-between; }
+      .panel { padding: 17px; border-radius: 17px; }
+      .result-content { grid-template-columns: 1fr; }
+      .result-side { justify-content: flex-start; }
+      .range-form { grid-template-columns: 1fr 1fr; }
+      .range-form button { grid-column: 1 / -1; }
+      .chart-wrap { min-height: 245px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 17.5 9 12l3.2 3.2L20 6.8M15.5 6.8H20v4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 21h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <p class="eyebrow">Retail intelligence</p>
+          <h1>Demand Studio</h1>
+        </div>
+      </div>
+      <div class="model-chip" aria-live="polite">
+        <div class="model-name"><i class="status-dot"></i><span id="model-name">Loading model…</span></div>
+        <div class="chip-stat"><strong id="model-mae">—</strong><span>Test MAE</span></div>
+        <div class="chip-stat"><strong id="model-improvement">—</strong><span>vs. baseline</span></div>
+      </div>
+    </header>
+
+    <section class="grid">
+      <section class="panel" aria-labelledby="forecast-title">
+        <div class="section-heading">
+          <div><h2 id="forecast-title">Build a forecast</h2><p>Choose a series and planning date.</p></div>
+          <span class="mode-badge" id="mode-badge">Forecast</span>
+        </div>
+        <form id="forecast-form">
+          <div class="field">
+            <div class="label-row"><label for="store-select">Store</label></div>
+            <select id="store-select" required></select>
+          </div>
+          <div class="field">
+            <div class="label-row"><label for="product-select">Product</label></div>
+            <select id="product-select" required></select>
+          </div>
+          <div class="field">
+            <div class="label-row"><label for="forecast-date">Forecast date</label></div>
+            <input id="forecast-date" type="date" required>
+          </div>
+          <div class="two-col">
+            <div class="field">
+              <div class="label-row"><label for="discount-select">Discount</label><span class="default-tag" data-default-for="discount">default</span></div>
+              <select id="discount-select"></select>
+            </div>
+            <div class="field">
+              <div class="label-row"><label>Promotion</label><span class="default-tag" data-default-for="promotion">default</span></div>
+              <label class="toggle"><span id="promotion-label">Off</span><input id="promotion-toggle" type="checkbox"><i class="switch"></i></label>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="field">
+              <div class="label-row"><label for="weather-select">Weather</label><span class="default-tag" data-default-for="weather_condition">default</span></div>
+              <select id="weather-select"></select>
+            </div>
+            <div class="field">
+              <div class="label-row"><label>Epidemic</label><span class="default-tag" data-default-for="epidemic">default</span></div>
+              <label class="toggle"><span id="epidemic-label">No</span><input id="epidemic-toggle" type="checkbox"><i class="switch"></i></label>
+            </div>
+          </div>
+          <div class="price-note" id="price-note">
+            <span class="info-icon" title="Model input information">i</span>
+            <span>Price is not editable. The model's latest observed price is supplied automatically; same-day operational fields were removed to prevent leakage.</span>
+          </div>
+          <button class="predict-btn" id="predict-button" type="submit"><span class="spinner"></span><span class="button-label">Predict demand</span><span aria-hidden="true">→</span></button>
+        </form>
+      </section>
+
+      <div class="right-column">
+        <section class="panel result-panel" aria-live="polite">
+          <div class="section-heading">
+            <div><h2>Prediction</h2><p id="result-date">Your forecast will appear here.</p></div>
+            <span class="soft-pill" id="result-mode"></span>
+          </div>
+          <div id="result-content" class="empty-result">Select a series and run a prediction to see the estimate, typical error range, and inputs used.</div>
+        </section>
+        <section class="panel chart-panel">
+          <div class="section-heading">
+            <div><h2>Recent demand</h2><p>Actual history with backtest context for this series.</p></div>
+            <span class="muted-note" id="chart-range">Last 60 days</span>
+          </div>
+          <div class="chart-wrap"><canvas id="history-chart" aria-label="Recent actual and predicted demand chart"></canvas></div>
+          <div class="legend"><span><i></i>Actual demand</span><span class="pred"><i></i>Backtest prediction</span><span class="epidemic"><i></i>Epidemic day</span></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="below-grid">
+      <section class="panel">
+        <div class="section-heading">
+          <div><h2>Backtest a period</h2><p>Compare a historical window and its mean absolute error.</p></div>
+        </div>
+        <form class="range-form" id="backtest-form">
+          <div class="field"><div class="label-row"><label for="backtest-start">Start date</label></div><input id="backtest-start" type="date" required></div>
+          <div class="field"><div class="label-row"><label for="backtest-end">End date</label></div><input id="backtest-end" type="date" required></div>
+          <button class="secondary-btn" id="backtest-button" type="submit"><span class="spinner"></span><span class="button-label">Run backtest</span></button>
+        </form>
+        <div class="mae-callout"><span id="backtest-summary">Predicted vs. actual demand</span><strong id="backtest-mae">—</strong></div>
+        <div class="period-chart-wrap"><canvas id="period-chart" aria-label="Backtest predicted and actual demand"></canvas></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div><h2>About the model</h2><p>What informs each estimate.</p></div>
+        </div>
+        <h3>Top drivers</h3>
+        <div class="driver-list" id="driver-list"><span class="muted-note">Loading model metadata…</span></div>
+        <h3>Main assumptions</h3>
+        <ul class="info-list" id="assumption-list"></ul>
+        <h3 class="known-title">Known weak spots</h3>
+        <ul class="info-list" id="weak-spot-list"></ul>
+      </section>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const API_BASE_URL = "http://localhost:8000";
+    const elements = {
+      store: document.getElementById("store-select"),
+      product: document.getElementById("product-select"),
+      date: document.getElementById("forecast-date"),
+      discount: document.getElementById("discount-select"),
+      promotion: document.getElementById("promotion-toggle"),
+      promotionLabel: document.getElementById("promotion-label"),
+      weather: document.getElementById("weather-select"),
+      epidemic: document.getElementById("epidemic-toggle"),
+      epidemicLabel: document.getElementById("epidemic-label"),
+      modeBadge: document.getElementById("mode-badge"),
+      result: document.getElementById("result-content"),
+      toast: document.getElementById("toast")
+    };
+    let metadata;
+    let seriesData;
+    let historyChart;
+    let periodChart;
+    let lastPrediction;
+    let defaultsRequest = 0;
+    let toastTimer;
+
+    const formatNumber = value => new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value);
+    const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+    const selectedSeries = () => ({ store: elements.store.value, product: elements.product.value });
+    const allProducts = () => {
+      const store = seriesData?.stores.find(item => item.store_id === elements.store.value);
+      return store ? store.products : [];
+    };
+
+    function showToast(message, success = false) {
+      elements.toast.textContent = message;
+      elements.toast.classList.toggle("success", success);
+      elements.toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => elements.toast.classList.remove("show"), 4200);
+    }
+
+    async function api(path, options = {}) {
+      let response;
+      try {
+        response = await fetch(`${API_BASE_URL}${path}`, {
+          ...options,
+          headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+        });
+      } catch {
+        throw new Error("Can't reach the forecasting service. Check that the backend is running and try again.");
+      }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const detail = Array.isArray(data.detail)
+          ? data.detail.map(item => item.msg).join(" ")
+          : data.detail;
+        throw new Error(detail || "The request could not be completed. Check your selections and try again.");
+      }
+      return data;
+    }
+
+    function setOptions(select, values, label = value => value) {
+      select.replaceChildren(...values.map(value => {
+        const option = document.createElement("option");
+        option.value = typeof value === "object" ? (value.store_id || value.product_id) : value;
+        option.textContent = label(value);
+        return option;
+      }));
+    }
+
+    function updateProducts() {
+      const products = allProducts();
+      setOptions(elements.product, products, item => `${item.product_id} · ${item.category}`);
+    }
+
+    function setModeBadge() {
+      const backtest = elements.date.value <= metadata.last_history_date;
+      elements.modeBadge.textContent = backtest ? "Backtest" : "Forecast";
+      elements.modeBadge.classList.toggle("backtest", backtest);
+    }
+
+    function markDefault(field, visible) {
+      const tag = document.querySelector(`[data-default-for="${field}"]`);
+      if (tag) tag.hidden = !visible;
+    }
+
+    function removeDefaultOnEdit(element, field) {
+      element.addEventListener("input", () => markDefault(field, false));
+      element.addEventListener("change", () => markDefault(field, false));
+    }
+
+    async function loadDefaults() {
+      if (!elements.store.value || !elements.product.value || !elements.date.value || !metadata) return;
+      const requestId = ++defaultsRequest;
+      const query = new URLSearchParams({
+        store_id: elements.store.value,
+        product_id: elements.product.value,
+        date: elements.date.value
+      });
+      try {
+        const result = await api(`/defaults?${query}`);
+        if (requestId !== defaultsRequest) return;
+        setOptions(elements.discount, metadata.valid_discount_values);
+        elements.discount.value = String(result.values.discount);
+        elements.promotion.checked = Boolean(result.values.promotion);
+        elements.promotionLabel.textContent = elements.promotion.checked ? "On" : "Off";
+        elements.weather.value = result.values.weather_condition;
+        elements.epidemic.checked = Boolean(result.values.epidemic);
+        elements.epidemicLabel.textContent = elements.epidemic.checked ? "Active" : "No";
+        for (const field of ["discount", "promotion", "weather_condition", "epidemic"]) {
+          markDefault(field, true);
+        }
+        for (const field of ["discount", "promotion", "weather_condition", "epidemic"]) {
+          const element = field === "discount" ? elements.discount
+            : field === "promotion" ? elements.promotion
+              : field === "weather_condition" ? elements.weather : elements.epidemic;
+          element.title = result.rules[field];
+        }
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
+
+    function populateModelInfo(data) {
+      metadata = data;
+      document.getElementById("model-name").textContent = data.model_name;
+      document.getElementById("model-mae").textContent = formatNumber(data.test_metrics.MAE);
+      document.getElementById("model-improvement").textContent = `${formatNumber(data.improvement_vs_baseline.percentage)}% better than baseline`;
+
+      const maxImportance = Math.max(...data.top_drivers.map(item => item.importance));
+      const driverList = document.getElementById("driver-list");
+      driverList.innerHTML = data.top_drivers.map(item => `
+        <div class="driver-row">
+          <span class="driver-name">${escapeHtml(item.feature)}</span>
+          <span class="driver-value">${formatNumber(item.importance)}</span>
+          <span class="driver-track"><i style="width:${(item.importance / maxImportance) * 100}%"></i></span>
+        </div>`).join("");
+      document.getElementById("assumption-list").innerHTML = data.assumptions.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+      document.getElementById("weak-spot-list").innerHTML = data.known_weak_spots.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+
+      const [minimum, maximum] = data.supported_date_range;
+      elements.date.min = minimum;
+      elements.date.max = maximum;
+      elements.date.value = data.forecast_date;
+      document.getElementById("backtest-start").min = minimum;
+      document.getElementById("backtest-end").min = minimum;
+      document.getElementById("backtest-start").max = data.last_history_date;
+      document.getElementById("backtest-end").max = data.last_history_date;
+      document.getElementById("backtest-end").value = data.last_history_date;
+      document.getElementById("backtest-start").value = data.test_metrics ? data.test_date_range?.[0] || data.last_history_date : data.last_history_date;
+      setOptions(elements.weather, data.valid_weather_values);
+      setOptions(elements.discount, data.valid_discount_values);
+      const priceNote = document.querySelector("#price-note span:last-child");
+      priceNote.textContent = data.price_feature_used
+        ? "Price is not editable. The model's latest observed price is supplied automatically; same-day operational fields were removed to prevent leakage."
+        : "Price is not a model input; it was excluded to prevent leakage.";
+    }
+
+    function initializeCharts() {
+      if (!window.Chart) {
+        showToast("Charts could not load. Check your connection and refresh the page.");
+        return;
+      }
+      Chart.defaults.color = "#91a0bd";
+      Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+      const shadeEpidemic = {
+        id: "shadeEpidemic",
+        beforeDatasetsDraw(chart, args, options) {
+          const { ctx, chartArea, scales } = chart;
+          const flags = options.flags || [];
+          if (!chartArea || !scales.x) return;
+          ctx.save();
+          flags.forEach((flag, index) => {
+            if (!flag) return;
+            const left = scales.x.getPixelForValue(index) - 4;
+            const right = scales.x.getPixelForValue(index + 1);
+            ctx.fillStyle = "rgba(255, 130, 150, .09)";
+            ctx.fillRect(left, chartArea.top, Math.max(8, right - left), chartArea.bottom - chartArea.top);
+          });
+          ctx.restore();
+        }
+      };
+      historyChart = new Chart(document.getElementById("history-chart"), {
+        type: "line",
+        data: { labels: [], datasets: [] },
+        plugins: [shadeEpidemic],
+        options: {
+          responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: "#10192c", borderColor: "rgba(151,169,207,.2)", borderWidth: 1, padding: 11 },
+            shadeEpidemic: { flags: [] }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 7, maxRotation: 0 } },
+            y: { beginAtZero: true, grid: { color: "rgba(151,169,207,.09)" }, border: { display: false } }
+          }
+        }
+      });
+      periodChart = new Chart(document.getElementById("period-chart"), {
+        type: "line",
+        data: { labels: [], datasets: [] },
+        options: {
+          responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+          plugins: { legend: { display: true, labels: { usePointStyle: true, boxWidth: 7, padding: 15 } } },
+          scales: {
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 6, maxRotation: 0 } },
+            y: { beginAtZero: true, grid: { color: "rgba(151,169,207,.09)" }, border: { display: false } }
+          }
+        }
+      });
+    }
+
+    async function refreshHistoryChart() {
+      if (!historyChart || !elements.store.value || !elements.product.value) return;
+      const { store, product } = selectedSeries();
+      const target = elements.date.value;
+      const endDate = target > metadata.last_history_date ? metadata.last_history_date : target;
+      const query = new URLSearchParams({ store_id: store, product_id: product, end_date: endDate, days: "60" });
+      try {
+        const history = await api(`/history?${query}`);
+        let backtest = { predictions: [] };
+        if (history.series.length) {
+          const start = history.series[0].date;
+          backtest = await api(`/backtest?${new URLSearchParams({ store_id: store, product_id: product, start, end: endDate })}`);
+        }
+        const labels = history.series.map(row => row.date);
+        if (lastPrediction?.date === target && !labels.includes(target)) labels.push(target);
+        const actualByDate = new Map(history.series.map(row => [row.date, row.demand]));
+        const predictionsByDate = new Map(backtest.predictions.map(row => [row.date, row.prediction]));
+        const selectedPoint = lastPrediction?.date === target ? lastPrediction.prediction : null;
+        historyChart.data.labels = labels;
+        historyChart.data.datasets = [
+          {
+            label: "Actual demand",
+            data: labels.map(date => actualByDate.has(date) ? actualByDate.get(date) : null),
+            borderColor: "#73e0c1", backgroundColor: "rgba(115,224,193,.1)", borderWidth: 2, pointRadius: 0, tension: .28
+          },
+          {
+            label: "Backtest prediction",
+            data: labels.map(date => predictionsByDate.has(date) ? predictionsByDate.get(date) : null),
+            borderColor: "#8caaff", backgroundColor: "#8caaff", borderWidth: 1.5, borderDash: [5, 5], pointRadius: 0, tension: .25
+          },
+          {
+            label: "New prediction",
+            data: labels.map(date => date === target ? selectedPoint : null),
+            borderColor: "#fff2a1", backgroundColor: "#fff2a1", pointRadius: 6, pointHoverRadius: 8, showLine: false
+          }
+        ];
+        historyChart.options.plugins.shadeEpidemic.flags = labels.map(date => {
+          const item = history.series.find(row => row.date === date);
+          return item ? item.epidemic === 1 : false;
+        });
+        historyChart.update();
+        document.getElementById("chart-range").textContent = history.series.length ? `${history.series[0].date} — ${history.series.at(-1).date}` : "No history";
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
+
+    function renderResult(result) {
+      lastPrediction = { date: result.date, prediction: result.prediction };
+      document.getElementById("result-date").textContent = result.date;
+      document.getElementById("result-mode").textContent = result.mode;
+      document.getElementById("result-mode").className = `mode-badge${result.mode === "backtest" ? " backtest" : ""}`;
+      const range = result.typical_error_range;
+      const backtestMarkup = result.mode === "backtest" ? `
+        <div class="stat-card"><strong>${formatNumber(result.actual_demand)}</strong><span>Actual demand</span></div>
+        <div class="stat-card"><strong>${formatNumber(Math.abs(result.error))}</strong><span>Absolute error</span></div>
+        <div class="stat-card"><strong class="accuracy">${result.actual_demand === 0 ? "—" : `${formatNumber(Math.max(0, 100 * (1 - Math.abs(result.error) / Math.abs(result.actual_demand))))}%`}</strong><span>Accuracy indicator</span></div>` : "";
+      const inputs = Object.entries(result.inputs_used).map(([name, value]) => {
+        const source = result.input_sources[name];
+        const isDefault = source === "default" || source === "last_observed";
+        return `<span class="soft-pill" style="padding:5px 8px;color:${isDefault ? "#8be4c6" : "#b9c9ed"};background:${isDefault ? "rgba(65,203,167,.1)" : "rgba(140,170,255,.1)"}">${escapeHtml(name.replaceAll("_", " "))}: ${escapeHtml(value)}${isDefault ? " · default" : ""}</span>`;
+      }).join("");
+      elements.result.className = "";
+      elements.result.innerHTML = `
+        <div class="result-content">
+          <div><span class="result-label">Predicted demand</span><div class="result-number">${formatNumber(result.prediction)}</div>
+          <p class="range-text">Typical range ${formatNumber(range.low)} – ${formatNumber(range.high)} · ± ${formatNumber(range.test_mae)} test MAE</p></div>
+          <div class="result-side">${backtestMarkup}</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:16px">${inputs}</div>`;
+      refreshHistoryChart();
+    }
+
+    async function submitForecast(event) {
+      event.preventDefault();
+      const button = document.getElementById("predict-button");
+      button.disabled = true;
+      button.classList.add("loading");
+      button.querySelector(".button-label").textContent = "Predicting…";
+      try {
+        const result = await api("/predict", {
+          method: "POST",
+          body: JSON.stringify({
+            store_id: elements.store.value,
+            product_id: elements.product.value,
+            date: elements.date.value,
+            discount: Number(elements.discount.value),
+            promotion: Number(elements.promotion.checked),
+            weather_condition: elements.weather.value,
+            epidemic: Number(elements.epidemic.checked)
+          })
+        });
+        renderResult(result);
+      } catch (error) {
+        showToast(error.message);
+      } finally {
+        button.disabled = false;
+        button.classList.remove("loading");
+        button.querySelector(".button-label").textContent = "Predict demand";
+      }
+    }
+
+    async function submitBacktest(event) {
+      event.preventDefault();
+      const button = document.getElementById("backtest-button");
+      button.disabled = true;
+      button.classList.add("loading");
+      button.querySelector(".button-label").textContent = "Running…";
+      const { store, product } = selectedSeries();
+      const start = document.getElementById("backtest-start").value;
+      const end = document.getElementById("backtest-end").value;
+      try {
+        const result = await api(`/backtest?${new URLSearchParams({ store_id: store, product_id: product, start, end })}`);
+        document.getElementById("backtest-mae").textContent = formatNumber(result.mae);
+        document.getElementById("backtest-summary").textContent = `${result.predictions.length} daily predictions · MAE`;
+        periodChart.data.labels = result.predictions.map(row => row.date);
+        periodChart.data.datasets = [
+          { label: "Actual", data: result.predictions.map(row => row.actual), borderColor: "#73e0c1", pointRadius: 0, borderWidth: 2, tension: .25 },
+          { label: "Predicted", data: result.predictions.map(row => row.prediction), borderColor: "#8caaff", pointRadius: 0, borderWidth: 2, borderDash: [5, 4], tension: .25 }
+        ];
+        periodChart.update();
+        showToast("Backtest completed.", true);
+      } catch (error) {
+        showToast(error.message);
+      } finally {
+        button.disabled = false;
+        button.classList.remove("loading");
+        button.querySelector(".button-label").textContent = "Run backtest";
+      }
+    }
+
+    async function initialize() {
+      try {
+        const [modelInfo, series] = await Promise.all([api("/metadata"), api("/series")]);
+        seriesData = series;
+        populateModelInfo(modelInfo);
+        setOptions(elements.store, series.stores, item => item.store_id);
+        updateProducts();
+        initializeCharts();
+        setModeBadge();
+        await loadDefaults();
+        await refreshHistoryChart();
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
+
+    elements.store.addEventListener("change", () => { updateProducts(); loadDefaults(); refreshHistoryChart(); });
+    elements.product.addEventListener("change", () => { loadDefaults(); refreshHistoryChart(); });
+    elements.date.addEventListener("change", () => { setModeBadge(); loadDefaults(); refreshHistoryChart(); });
+    elements.promotion.addEventListener("change", () => { elements.promotionLabel.textContent = elements.promotion.checked ? "On" : "Off"; });
+    elements.epidemic.addEventListener("change", () => { elements.epidemicLabel.textContent = elements.epidemic.checked ? "Active" : "No"; });
+    removeDefaultOnEdit(elements.discount, "discount");
+    removeDefaultOnEdit(elements.promotion, "promotion");
+    removeDefaultOnEdit(elements.weather, "weather_condition");
+    removeDefaultOnEdit(elements.epidemic, "epidemic");
+    document.getElementById("forecast-form").addEventListener("submit", submitForecast);
+    document.getElementById("backtest-form").addEventListener("submit", submitBacktest);
+    initialize();
+  </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+{
+  "target_name": "Demand",
+  "feature_list": [
+    "Store ID",
+    "Product ID",
+    "Category",
+    "Weather Condition",
+    "year",
+    "month",
+    "day_of_month",
+    "day_of_week",
+    "week_of_year",
+    "is_weekend",
+    "month_sin",
+    "month_cos",
+    "demand_lag_1",
+    "demand_lag_7",
+    "demand_lag_14",
+    "demand_lag_28",
+    "demand_roll_mean_7",
+    "demand_roll_mean_14",
+    "demand_roll_mean_28",
+    "demand_roll_std_7",
+    "Units Sold lag 1",
+    "Units Sold lag 7",
+    "Units Ordered lag 1",
+    "Inventory Level lag 1",
+    "Price",
+    "Discount",
+    "Promotion",
+    "price_gap",
+    "price_ratio",
+    "Epidemic",
+    "epidemic_days_past_7",
+    "price_relative_series_28"
+  ],
+  "numerical_features": [
+    "year",
+    "month",
+    "day_of_month",
+    "day_of_week",
+    "week_of_year",
+    "is_weekend",
+    "month_sin",
+    "month_cos",
+    "demand_lag_1",
+    "demand_lag_7",
+    "demand_lag_14",
+    "demand_lag_28",
+    "demand_roll_mean_7",
+    "demand_roll_mean_14",
+    "demand_roll_mean_28",
+    "demand_roll_std_7",
+    "Units Sold lag 1",
+    "Units Sold lag 7",
+    "Units Ordered lag 1",
+    "Inventory Level lag 1",
+    "Price",
+    "Discount",
+    "Promotion",
+    "price_gap",
+    "price_ratio",
+    "Epidemic",
+    "epidemic_days_past_7",
+    "price_relative_series_28"
+  ],
+  "categorical_features": [
+    "Store ID",
+    "Product ID",
+    "Category",
+    "Weather Condition"
+  ],
+  "series_key": [
+    "Store ID",
+    "Product ID"
+  ],
+  "series_id": "series_id",
+  "lag_settings": {
+    "demand_lags": [
+      1,
+      7,
+      14,
+      28
+    ],
+    "demand_rolling_windows": [
+      7,
+      14,
+      28
+    ],
+    "demand_rolling_std_windows": [
+      7
+    ],
+    "operational_lags": {
+      "Units Sold": [
+        1,
+        7
+      ],
+      "Units Ordered": [
+        1
+      ],
+      "Inventory Level": [
+        1
+      ]
+    },
+    "epidemic_past_days": 7
+  },
+  "split_date": "2023-10-03",
+  "test_days": 120,
+  "forecasting_setup": {
+    "task": "1-day-ahead demand forecast per series",
+    "forecast_time_features": [
+      "calendar features",
+      "planned Price",
+      "planned Discount",
+      "planned Promotion",
+      "past values only",
+      "Weather Condition",
+      "Competitor Pricing",
+      "Epidemic"
+    ],
+    "assumption": "Weather Condition, Competitor Pricing and Epidemic are assumed known for the forecast day from forecasts or announcements.",
+    "same_day_fields_removed": [
+      "Units Sold",
+      "Units Ordered",
+      "Inventory Level"
+    ]
+  },
+  "preprocessing": {
+    "categorical_one_hot": [
+      "Store ID",
+      "Product ID",
+      "Category",
+      "Weather Condition"
+    ],
+    "product_id_encoding": "one-hot",
+    "numeric_scaler": "StandardScaler",
+    "fit_scope": "training set only",
+    "transformer_persistence": "not saved; fit inside model pipeline in the modeling stage"
+  }
+}

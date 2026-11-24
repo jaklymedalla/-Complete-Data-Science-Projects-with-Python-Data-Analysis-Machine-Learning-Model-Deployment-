@@ -1,0 +1,683 @@
+{
+  "model_name": "LightGBM",
+  "top_drivers": [
+    {
+      "feature": "price_relative_series_28",
+      "importance": 4155
+    },
+    {
+      "feature": "demand_roll_mean_28",
+      "importance": 3104
+    },
+    {
+      "feature": "Discount",
+      "importance": 2266
+    },
+    {
+      "feature": "demand_roll_mean_7",
+      "importance": 730
+    },
+    {
+      "feature": "demand_roll_mean_14",
+      "importance": 622
+    },
+    {
+      "feature": "price_ratio",
+      "importance": 563
+    },
+    {
+      "feature": "Price",
+      "importance": 328
+    },
+    {
+      "feature": "price_gap",
+      "importance": 260
+    },
+    {
+      "feature": "Promotion",
+      "importance": 225
+    },
+    {
+      "feature": "week_of_year",
+      "importance": 208
+    }
+  ],
+  "assumptions": [
+    "Weather Condition, Competitor Pricing and Epidemic are assumed known for the forecast day from forecasts or announcements."
+  ],
+  "known_weak_spots": [
+    "Slight under-forecasting in some cases.",
+    "Demand recovery after epidemic periods may be less reliable.",
+    "The model is limited to 1-day-ahead forecasts."
+  ],
+  "supported_date_range": [
+    "2022-01-01",
+    "2024-01-31"
+  ],
+  "best_parameters": {
+    "model__regressor__num_leaves": 31,
+    "model__regressor__n_estimators": 500,
+    "model__regressor__max_depth": 6,
+    "model__regressor__learning_rate": 0.03
+  },
+  "feature_list": [
+    "Store ID",
+    "Product ID",
+    "Category",
+    "Weather Condition",
+    "year",
+    "month",
+    "day_of_month",
+    "day_of_week",
+    "week_of_year",
+    "is_weekend",
+    "month_sin",
+    "month_cos",
+    "demand_lag_1",
+    "demand_lag_7",
+    "demand_lag_14",
+    "demand_lag_28",
+    "demand_roll_mean_7",
+    "demand_roll_mean_14",
+    "demand_roll_mean_28",
+    "demand_roll_std_7",
+    "Units Sold lag 1",
+    "Units Sold lag 7",
+    "Units Ordered lag 1",
+    "Inventory Level lag 1",
+    "Price",
+    "Discount",
+    "Promotion",
+    "price_gap",
+    "price_ratio",
+    "Epidemic",
+    "epidemic_days_past_7",
+    "price_relative_series_28"
+  ],
+  "cv_metrics": {
+    "LightGBM": {
+      "MAE": "16.724148 +/- 1.884772",
+      "RMSE": "23.200741 +/- 2.595610",
+      "WAPE": "0.160077 +/- 0.023107",
+      "R2": "0.754698 +/- 0.052180"
+    }
+  },
+  "baseline_cv_metrics": {
+    "Moving Average 7": {
+      "MAE": "32.164824 +/- 1.010419",
+      "RMSE": "41.823527 +/- 1.366195",
+      "WAPE": "0.306752 +/- 0.010799",
+      "R2": "0.206199 +/- 0.096039"
+    }
+  },
+  "tuned_cv_mae": 4.381249,
+  "test_metrics": {
+    "MAE": 3.710015450827058,
+    "RMSE": 4.8289371686694755,
+    "WAPE": 0.03769798166754845,
+    "R2": 0.9884296519408696
+  },
+  "test_metrics_no_price": {
+    "MAE": 7.592269156230361,
+    "RMSE": 8.971564063200764,
+    "WAPE": 0.07714610013358877,
+    "R2": 0.9600626136546392
+  },
+  "baseline_test_metrics": {
+    "MAE": 31.639726190476193,
+    "RMSE": 40.71660208531834,
+    "WAPE": 0.32149564704074984,
+    "R2": 0.17740442345359753
+  },
+  "best_baseline_name": "Moving Average 7",
+  "training_date_range": [
+    "2022-01-29",
+    "2023-10-02"
+  ],
+  "test_date_range": [
+    "2023-10-03",
+    "2024-01-30"
+  ],
+  "last_history_date": "2024-01-30",
+  "valid_stores": [
+    "S001",
+    "S002",
+    "S003",
+    "S004",
+    "S005"
+  ],
+  "valid_store_product_pairs": [
+    {
+      "Store ID": "S001",
+      "Product ID": "P0001",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0002",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0003",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0004",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0005",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0006",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0007",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0008",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0009",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0010",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0011",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0012",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0013",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0014",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0015",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0016",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0017",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0018",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0019",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S001",
+      "Product ID": "P0020",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0001",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0002",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0003",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0004",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0005",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0006",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0007",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0008",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0009",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0010",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0011",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0012",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0013",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0014",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0015",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0016",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0017",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0018",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0019",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S002",
+      "Product ID": "P0020",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0001",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0002",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0003",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0004",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0005",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0006",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0007",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0008",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0009",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0010",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0011",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0012",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0013",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0014",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0015",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0016",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0017",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0018",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0019",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S003",
+      "Product ID": "P0020",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0001",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0002",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0003",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0004",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0005",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0006",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0007",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0008",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0009",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0010",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0011",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0012",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0013",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0014",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0015",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0016",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0017",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0018",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0019",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S004",
+      "Product ID": "P0020",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0001",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0002",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0003",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0004",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0005",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0006",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0007",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0008",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0009",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0010",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0011",
+      "Category": "Electronics"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0012",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0013",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0014",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0015",
+      "Category": "Groceries"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0016",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0017",
+      "Category": "Toys"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0018",
+      "Category": "Clothing"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0019",
+      "Category": "Furniture"
+    },
+    {
+      "Store ID": "S005",
+      "Product ID": "P0020",
+      "Category": "Toys"
+    }
+  ],
+  "valid_weather_values": [
+    "Cloudy",
+    "Rainy",
+    "Snowy",
+    "Sunny"
+  ],
+  "valid_discount_values": [
+    0,
+    5,
+    10,
+    15,
+    20,
+    25
+  ],
+  "valid_promotion_values": [
+    0,
+    1
+  ],
+  "valid_epidemic_values": [
+    0,
+    1
+  ],
+  "default_rules": {
+    "weather": "Most frequent weather for the store's Region in the requested calendar month",
+    "competitor_pricing": "Given price divided by the series' last observed Price / Competitor Pricing ratio",
+    "epidemic": "Last known epidemic value for the series",
+    "price_discount_promotion": "Last observed discount and promotion values for the series"
+  },
+  "consistency_check": {
+    "rows": 5,
+    "maximum_absolute_difference": 0.0
+  }
+}
